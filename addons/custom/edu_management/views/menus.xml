@@ -12,6 +12,21 @@
     <menuitem id="menu_edu_classroom" name="Phòng học" 
               parent="menu_edu_master" action="action_edu_classroom" sequence="30"/>
     
+    <!-- Action for Tuition Fee (Product) -->
+    <record id="action_edu_fee" model="ir.actions.act_window">
+        <field name="name">Học phí</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_edu_fee_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_edu_fee_form')})]"/>
+        <field name="domain">[('is_edu_fee', '=', True)]</field>
+        <field name="context">{'default_is_edu_fee': True, 'default_detailed_type': 'service', 'default_taxes_id': False}</field>
+    </record>
+
+    <menuitem id="menu_edu_fee" name="Học phí"
+              parent="menu_edu_master" action="action_edu_fee" sequence="40"/>
+    
     <!-- Operations -->
     <menuitem id="menu_edu_session" name="Lớp học" 
               parent="menu_edu_root" action="action_edu_session" sequence="20"/>

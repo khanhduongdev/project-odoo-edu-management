@@ -8,5 +8,13 @@
             <field name="padding">5</field>
             <field name="number_increment">1</field>
         </record>
+
+        <record id="seq_edu_subject" model="ir.sequence">
+            <field name="name">Subject Code</field>
+            <field name="code">edu.subject</field>
+            <field name="prefix">SJ</field>
+            <field name="padding">4</field>
+            <field name="number_increment">1</field>
+        </record>
     </data>
 </odoo>

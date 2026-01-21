@@ -14,43 +14,43 @@ class EduCourse(models.Model):
         ('advanced', 'Nâng cao')
     ], default='basic')
     
-    # Relations
-    responsible_id = fields.Many2one('res.users', string='Người phụ trách')
+    responsible_id = fields.Many2one('res.partner', string='Người phụ trách', 
+        domain=[('is_instructor', '=', True)])
     subject_id = fields.Many2one('edu.subject', string='Chuyên ngành')
     fee_product_id = fields.Many2one('product.template', 
         string='Học phí', domain=[('is_edu_fee', '=', True)])
     session_ids = fields.One2many('edu.session', 'course_id', string='Lớp học')
     
-    # Smart button
     session_count = fields.Integer(compute='_compute_session_count')
     
-    # _sql_constraints = [
-    #     ('name_unique', 'UNIQUE(name)', 'Tên khóa học phải duy nhất!')
-    # ]
-
     @api.constrains('name')
     def _check_name_active(self):
         for rec in self:
             if rec.name:
-                # Check duplication (Case insensitive + Strip whitespace)
                 name_clean = rec.name.strip()
                 domain = [
                     ('name', '=ilike', name_clean),
                     ('id', '!=', rec.id)
                 ]
                 if self.search_count(domain) > 0:
-                    raise ValidationError(f'Tên khóa học "{name_clean}" đã tồn tại (không phân biệt hoa thường)!')
+                    raise ValidationError('Tên khóa học đã tồn tại')
     
     @api.depends('session_ids')
     def _compute_session_count(self):
         for rec in self:
             rec.session_count = len(rec.session_ids)
             
-    @api.constrains('fee_product_id')
-    def _check_fee_product(self):
-        for rec in self:
             if rec.fee_product_id and rec.fee_product_id.detailed_type != 'service':
                 raise ValidationError('Sản phẩm học phí phải là loại Dịch vụ (Service)!')
+    
+    @api.onchange('responsible_id')
+    def _onchange_responsible_id(self):
+        if self.responsible_id and self.responsible_id.email:
+            email_info = f"Email: {self.responsible_id.email}"
+            if self.description:
+                self.description += email_info
+            else:
+                self.description = email_info
     
     def action_view_sessions(self):
         return {

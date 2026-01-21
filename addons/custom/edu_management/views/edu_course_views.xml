@@ -26,8 +26,8 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Mô tả">
-                            <field name="description"/>
+                        <page string="Thông tin chung">
+                            <field name="description" placeholder="Mô tả nội dung khóa học..." widget="html"/>
                         </page>
                         <page string="Danh sách lớp">
                             <field name="session_ids">
@@ -68,11 +68,13 @@
         <field name="model">edu.course</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="responsible_id"/>
+                <field name="name" string="Tên khóa học / Giảng viên"
+                       filter_domain="['|', ('name', 'ilike', self), ('responsible_id', 'ilike', self)]"/>
                 <field name="subject_id"/>
+                <filter name="my_courses" string="Của tôi" domain="[('responsible_id', '=', uid)]"/>
                 <filter name="archived" string="Đã đóng" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
+                    <filter name="group_responsible" string="Người phụ trách" context="{'group_by': 'responsible_id'}"/>
                     <filter name="group_subject" string="Chuyên ngành" context="{'group_by': 'subject_id'}"/>
                     <filter name="group_level" string="Cấp độ" context="{'group_by': 'level'}"/>
                 </group>

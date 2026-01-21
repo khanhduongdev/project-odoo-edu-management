@@ -78,12 +78,7 @@ class EduSession(models.Model):
     def _onchange_course_id(self):
         if self.course_id and self.course_id.responsible_id:
             # Auto-fill instructor from course responsible
-            instructor = self.env['res.partner'].search([
-                ('user_id', '=', self.course_id.responsible_id.id),
-                ('is_instructor', '=', True)
-            ], limit=1)
-            if instructor:
-                self.instructor_id = instructor
+            self.instructor_id = self.course_id.responsible_id
     
     # Chức năng 16: Onchange seats validation
     @api.onchange('seats')

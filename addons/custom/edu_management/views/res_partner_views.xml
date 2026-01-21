@@ -5,7 +5,47 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <!-- Smart Button -->
+            <!-- 1. Hide messy fields -->
+            <xpath expr="//field[@name='company_type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='category_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            
+            <!-- 2. Clean up Main Group (Keep Address/Website/Title hidden) -->
+             <xpath expr="//div[hasclass('o_address_format')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='function']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+             <xpath expr="//field[@name='website']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='title']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- New: Hide Company Name (parent_id) and Contact Type (type) -->
+            <xpath expr="//field[@name='parent_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='mobile']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            
+            <!-- New: Hide Chatter -->
+            <xpath expr="//div[hasclass('oe_chatter')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- 3. Smart Button -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_teaching_sessions" type="object" 
                         class="oe_stat_button" icon="fa-graduation-cap"
@@ -14,12 +54,22 @@
                 </button>
             </xpath>
             
-            <!-- Education Page -->
+            <!-- 4. Simplify Tabs: Hide standard tabs -->
+            <xpath expr="//page[@name='contact_addresses']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- 5. Add Custom Education Page -->
             <xpath expr="//notebook" position="inside">
                 <page string="Education" name="education">
                     <group>
-                        <field name="is_instructor"/>
-                        <field name="is_student"/>
+                        <group>
+                            <field name="is_instructor"/>
+                            <field name="is_student"/>
+                        </group>
                     </group>
                     <group string="Lớp đang dạy" invisible="not is_instructor">
                         <field name="session_teaching_ids" nolabel="1">

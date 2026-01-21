@@ -30,6 +30,7 @@
         'views/edu_classroom_views.xml',
         'views/edu_session_views.xml',
         'views/res_partner_views.xml',
+        'views/product_views.xml',
         'views/menus.xml',
     ],
     # Demo data
