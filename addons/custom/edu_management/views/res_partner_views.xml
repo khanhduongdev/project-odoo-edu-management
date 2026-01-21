@@ -71,16 +71,7 @@
                             <field name="is_student"/>
                         </group>
                     </group>
-                    <group string="Lớp đang dạy" invisible="not is_instructor">
-                        <field name="session_teaching_ids" nolabel="1">
-                            <tree>
-                                <field name="code"/>
-                                <field name="name"/>
-                                <field name="start_date"/>
-                                <field name="state"/>
-                            </tree>
-                        </field>
-                    </group>
+
                     <group string="Lớp đang học" invisible="not is_student">
                         <field name="session_attending_ids" nolabel="1" widget="many2many_tags"/>
                     </group>

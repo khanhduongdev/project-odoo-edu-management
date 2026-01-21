@@ -33,7 +33,7 @@ class EduSession(models.Model):
         store=True)
     taken_seats = fields.Float('% Chỗ ngồi', compute='_compute_taken_seats')
     revenue = fields.Monetary('Doanh thu', compute='_compute_revenue', 
-        currency_field='currency_id')
+        currency_field='currency_id', store=True)
     currency_id = fields.Many2one('res.currency', 
         default=lambda self: self.env.company.currency_id)
     attendee_count = fields.Integer('Số học viên', compute='_compute_attendee_count', store=True)

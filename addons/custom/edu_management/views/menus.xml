@@ -32,7 +32,8 @@
               parent="menu_edu_root" action="action_edu_session" sequence="20"/>
     
     <!-- Reports -->
-    <menuitem id="menu_edu_reports" name="Báo cáo" parent="menu_edu_root" sequence="90"/>
+    <menuitem id="menu_edu_reports" name="Báo cáo" parent="menu_edu_root" sequence="90" 
+              groups="edu_management.group_edu_manager"/>
     <menuitem id="menu_edu_session_report" name="Phân tích lớp học" 
-              parent="menu_edu_reports" action="action_edu_session" sequence="10"/>
+              parent="menu_edu_reports" action="action_edu_session_report" sequence="10"/>
 </odoo>
