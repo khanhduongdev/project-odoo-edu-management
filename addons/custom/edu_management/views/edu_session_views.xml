@@ -18,16 +18,18 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name"/>
                         <h1>
-                            <field name="code" readonly="1"/> - 
-                            <field name="name" placeholder="Tên lớp học"/>
+                            <field name="code" readonly="1"/>
                         </h1>
+                        <label for="name"/>
+                        <h2>
+                            <field name="name" placeholder="Tên lớp học"/>
+                        </h2>
                     </div>
                     <group>
                         <group>
                             <field name="course_id"/>
-                            <field name="instructor_id"/>
+                            <field name="instructor_id" readonly="1" force_save="1"/>
                             <field name="classroom_id"/>
                         </group>
                         <group>
@@ -48,11 +50,6 @@
                         </page>
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="message_ids"/>
-                    <field name="activity_ids"/>
-                </div>
             </form>
         </field>
     </record>
@@ -63,12 +60,13 @@
         <field name="model">edu.session</field>
         <field name="arch" type="xml">
             <tree decoration-danger="taken_seats &gt; 100"
-                  decoration-info="start_date and (start_date - context_today()).days &lt; 5">
+                  decoration-info="is_warning == True">
                 <field name="code"/>
                 <field name="name"/>
                 <field name="course_id"/>
                 <field name="instructor_id"/>
                 <field name="start_date"/>
+                <field name="is_warning" column_invisible="True"/>
                 <field name="taken_seats" widget="progressbar"/>
                 <field name="state"/>
             </tree>

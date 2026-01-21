@@ -12,15 +12,15 @@ class EduSession(models.Model):
     _order = 'start_date desc, name'
     
     # Basic fields
-    name = fields.Char('Tên lớp', required=True, tracking=True)
+    name = fields.Char('Tên lớp', tracking=True)
     code = fields.Char('Mã lớp', readonly=True, copy=False)
-    start_date = fields.Date('Ngày bắt đầu', required=True, tracking=True)
+    start_date = fields.Date('Ngày bắt đầu', tracking=True)
     duration = fields.Float('Thời lượng (ngày)', default=1.0)
     seats = fields.Integer('Số ghế', default=20)
     
     # Relations
     course_id = fields.Many2one('edu.course', string='Khóa học', 
-        required=True, ondelete='restrict', tracking=True)
+         ondelete='restrict', tracking=True)
     instructor_id = fields.Many2one('res.partner', string='Giảng viên',
         domain=[('is_instructor', '=', True)], tracking=True)
     classroom_id = fields.Many2one('edu.classroom', string='Phòng học', tracking=True)
@@ -44,7 +44,37 @@ class EduSession(models.Model):
         ('done', 'Kết thúc'),
         ('cancel', 'Hủy')
     ], default='draft', required=True, tracking=True)
-    
+
+    # ... (Keep existing compute methods) ...
+
+    # Chức năng: Comprehensive Validations
+    @api.constrains('name', 'course_id', 'start_date', 'seats')
+    def _check_session_validations(self):
+        for rec in self:
+            # 1. Custom Required Fields Check
+            if not rec.name or not rec.name.strip():
+                raise ValidationError('Tên lớp - không được để trống!')
+            
+            if not rec.course_id:
+                raise ValidationError('Khóa học - không được để trống!')
+                
+            if not rec.start_date:
+                raise ValidationError('Ngày bắt đầu - không được để trống!')
+            
+            # 2. Unique Name Check
+            if rec.name:
+                name_clean = rec.name.strip()
+                domain = [
+                    ('name', '=ilike', name_clean),
+                    ('id', '!=', rec.id)
+                ]
+                if self.search_count(domain) > 0:
+                    raise ValidationError('Tên lớp học đã tồn tại (không phân biệt hoa thường)!')
+            
+            # 3. Seats Check
+            if rec.seats <= 0:
+                raise ValidationError('Số ghế phải lớn hơn 0!')
+
     # Chức năng 13: Computed taken_seats
     @api.depends('seats', 'attendee_ids')
     def _compute_taken_seats(self):
@@ -62,6 +92,18 @@ class EduSession(models.Model):
                 rec.end_date = rec.start_date + timedelta(days=rec.duration)
             else:
                 rec.end_date = False
+
+    # Chức năng: Warning for upcoming sessions
+    is_warning = fields.Boolean(compute='_compute_is_warning')
+
+    @api.depends('start_date')
+    def _compute_is_warning(self):
+        for rec in self:
+            if rec.start_date:
+                diff = (rec.start_date - fields.Date.today()).days
+                rec.is_warning = 0 <= diff < 5
+            else:
+                rec.is_warning = False
     
     # Chức năng 39: Computed revenue
     @api.depends('attendee_ids', 'course_id.fee_product_id')
@@ -99,16 +141,6 @@ class EduSession(models.Model):
             if rec.instructor_id and rec.instructor_id in rec.attendee_ids:
                 raise ValidationError(
                     'Giảng viên không thể đồng thời là học viên của lớp này!'
-                )
-    
-    # Chức năng bổ sung: Constraint - Capacity check
-    @api.constrains('seats', 'classroom_id')
-    def _check_capacity(self):
-        for rec in self:
-            if rec.classroom_id and rec.seats > rec.classroom_id.capacity:
-                raise ValidationError(
-                    f'Số ghế ({rec.seats}) không được vượt quá sức chứa của phòng '
-                    f'{rec.classroom_id.name} ({rec.classroom_id.capacity} chỗ)!'
                 )
     
     # Chức năng 18: Constraint - Duration validation
@@ -154,12 +186,9 @@ class EduSession(models.Model):
                         f'{overlapping[0].name} trong khoảng thời gian này!'
                     )
     
-    # Chức năng 20: Auto-generate code
+    # Chức năng 20: Auto-generate code (Max + 1)
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if not vals.get('code'):
-                vals['code'] = self.env['ir.sequence'].next_by_code('edu.session') or '/'
         return super().create(vals_list)
     
     # Chức năng 29: Custom name_get
@@ -178,6 +207,20 @@ class EduSession(models.Model):
         res = super().default_get(fields_list)
         # Auto-fill start_date = tomorrow
         res['start_date'] = fields.Date.today() + timedelta(days=1)
+        
+        # Generate Code SESS/xxxxx
+        last_session = self.search([], order='code desc', limit=1)
+        if last_session and last_session.code:
+            try:
+                # SESS/00001 -> 1
+                last_number = int(last_session.code.split('/')[-1])
+                new_number = last_number + 1
+            except (ValueError, IndexError):
+                new_number = 1
+        else:
+            new_number = 1
+            
+        res['code'] = f'SESS/{new_number:05d}'
         return res
     
     # Chức năng 40: Enhanced name_search
