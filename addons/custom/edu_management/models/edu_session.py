@@ -157,14 +157,16 @@ class EduSession(models.Model):
                 raise ValidationError('Thời lượng khóa học phải lớn hơn 0!')
     
     # Chức năng bổ sung: Constraint - Instructor overlap
-    @api.constrains('instructor_id', 'start_date', 'end_date')
+    @api.constrains('instructor_id', 'start_date', 'end_date', 'state')
     def _check_instructor_overlap(self):
         for rec in self:
+            if rec.state in ['draft', 'cancel']:
+                continue
             if rec.instructor_id and rec.start_date and rec.end_date:
                 overlapping = self.search([
                     ('id', '!=', rec.id),
                     ('instructor_id', '=', rec.instructor_id.id),
-                    ('state', 'not in', ['cancel']),
+                    ('state', 'in', ['open', 'done']),
                     ('start_date', '<=', rec.end_date),
                     ('end_date', '>=', rec.start_date)
                 ])
@@ -175,14 +177,16 @@ class EduSession(models.Model):
                     )
 
     # Chức năng 28: Constraint - Classroom overlap
-    @api.constrains('classroom_id', 'start_date', 'end_date')
+    @api.constrains('classroom_id', 'start_date', 'end_date', 'state')
     def _check_classroom_overlap(self):
         for rec in self:
+            if rec.state in ['draft', 'cancel']:
+                continue
             if rec.classroom_id and rec.start_date and rec.end_date:
                 overlapping = self.search([
                     ('id', '!=', rec.id),
                     ('classroom_id', '=', rec.classroom_id.id),
-                    ('state', 'not in', ['cancel']),
+                    ('state', 'in', ['open', 'done']),
                     ('start_date', '<=', rec.end_date),
                     ('end_date', '>=', rec.start_date)
                 ])
@@ -193,8 +197,24 @@ class EduSession(models.Model):
                     )
     
     # Chức năng 20: Auto-generate code (Max + 1)
+    def _get_next_code_number(self):
+        last_session = self.search([], order='code desc', limit=1)
+        if last_session and last_session.code:
+            try:
+                return int(last_session.code.split('/')[-1]) + 1
+            except (ValueError, IndexError):
+                return 1
+        return 1
+
     @api.model_create_multi
     def create(self, vals_list):
+        # Handle auto-generation for missing codes (e.g. Duplicate/Copy)
+        vals_missing_code = [v for v in vals_list if not v.get('code')]
+        if vals_missing_code:
+            next_num = self._get_next_code_number()
+            for vals in vals_missing_code:
+                vals['code'] = f'SESS/{next_num:05d}'
+                next_num += 1
         return super().create(vals_list)
     
     # Chức năng 29: Custom name_get
@@ -215,18 +235,8 @@ class EduSession(models.Model):
         res['start_date'] = fields.Date.today() + timedelta(days=1)
         
         # Generate Code SESS/xxxxx
-        last_session = self.search([], order='code desc', limit=1)
-        if last_session and last_session.code:
-            try:
-                # SESS/00001 -> 1
-                last_number = int(last_session.code.split('/')[-1])
-                new_number = last_number + 1
-            except (ValueError, IndexError):
-                new_number = 1
-        else:
-            new_number = 1
-            
-        res['code'] = f'SESS/{new_number:05d}'
+        next_num = self._get_next_code_number()
+        res['code'] = f'SESS/{next_num:05d}'
         return res
     
     # Chức năng 40: Enhanced name_search
@@ -259,6 +269,10 @@ class EduSession(models.Model):
             if rec.state == 'done':
                 raise UserError('Không thể hủy lớp đã kết thúc!')
             rec.state = 'cancel'
+            
+    # Chức năng bổ sung: Reset to Draft
+    def action_draft(self):
+        self.write({'state': 'draft'})
     
     # Chức năng 37: Copy protection
     def copy(self, default=None):
@@ -268,6 +282,7 @@ class EduSession(models.Model):
             'attendee_ids': [(5, 0, 0)],  # Clear all attendees
             'code': False,  # Generate new code
             'name': self.name + ' (Copy)',
+            'classroom_id': False,
         })
         return super().copy(default)
     

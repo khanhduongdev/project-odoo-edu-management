@@ -11,6 +11,8 @@
                             type="object" invisible="state != 'draft'" class="btn-primary"/>
                     <button name="action_done" string="Kết thúc" 
                             type="object" invisible="state != 'open'" class="btn-success"/>
+                    <button name="action_draft" string="Đặt lại nháp" 
+                            type="object" invisible="state not in ['cancel', 'done']" class="btn-secondary"/>
                     <button name="action_cancel" string="Hủy" 
                             type="object" invisible="state not in ['draft', 'open']"/>
                     <field name="state" widget="statusbar" 
@@ -161,10 +163,10 @@
         <field name="model">edu.session</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="code"/>
+                <field name="name" string="Từ khóa tìm kiếm"
+                       filter_domain="['|', '|', ('name', 'ilike', self), ('code', 'ilike', self), ('instructor_id', 'ilike', self)]"/>
                 <field name="course_id"/>
-                <field name="instructor_id"/>
+                <field name="classroom_id"/>
                 <filter name="this_week" string="Tuần này"
                         domain="[('start_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
                                  ('start_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
