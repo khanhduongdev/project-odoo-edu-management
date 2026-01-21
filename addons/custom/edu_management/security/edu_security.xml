@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Categories -->
+        <record id="module_category_education" model="ir.module.category">
+            <field name="name">Education</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Groups -->
+        <record id="group_edu_user" model="res.groups">
+            <field name="name">Giáo vụ</field>
+            <field name="category_id" ref="module_category_education"/>
+        </record>
+
+        <record id="group_edu_manager" model="res.groups">
+            <field name="name">Quản lý</field>
+            <field name="category_id" ref="module_category_education"/>
+            <field name="implied_ids" eval="[(4, ref('group_edu_user'))]"/>
+        </record>
+
+        <!-- Record Rules -->
+        <record id="session_user_rule" model="ir.rule">
+            <field name="name">Session: User can see own or teaching sessions</field>
+            <field name="model_id" ref="model_edu_session"/>
+            <field name="groups" eval="[(4, ref('group_edu_user'))]"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), 
+                                            ('instructor_id.user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="session_manager_rule" model="ir.rule">
+            <field name="name">Session: Manager can see all</field>
+            <field name="model_id" ref="model_edu_session"/>
+            <field name="groups" eval="[(4, ref('group_edu_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_edu_root" name="Đào tạo" sequence="10"/>
+    
+    <!-- Master Data -->
+    <menuitem id="menu_edu_master" name="Danh mục" parent="menu_edu_root" sequence="10"/>
+    <menuitem id="menu_edu_course" name="Khóa học" 
+              parent="menu_edu_master" action="action_edu_course" sequence="10"/>
+    <menuitem id="menu_edu_subject" name="Môn học" 
+              parent="menu_edu_master" action="action_edu_subject" sequence="20"/>
+    <menuitem id="menu_edu_classroom" name="Phòng học" 
+              parent="menu_edu_master" action="action_edu_classroom" sequence="30"/>
+    
+    <!-- Operations -->
+    <menuitem id="menu_edu_session" name="Lớp học" 
+              parent="menu_edu_root" action="action_edu_session" sequence="20"/>
+    
+    <!-- Reports -->
+    <menuitem id="menu_edu_reports" name="Báo cáo" parent="menu_edu_root" sequence="90"/>
+    <menuitem id="menu_edu_session_report" name="Phân tích lớp học" 
+              parent="menu_edu_reports" action="action_edu_session" sequence="10"/>
+</odoo>

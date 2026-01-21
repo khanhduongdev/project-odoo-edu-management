@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_edu" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.edu</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_teaching_sessions" type="object" 
+                        class="oe_stat_button" icon="fa-graduation-cap"
+                        invisible="not is_instructor">
+                    <field name="teaching_count" widget="statinfo" string="Lớp dạy"/>
+                </button>
+            </xpath>
+            
+            <!-- Education Page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Education" name="education">
+                    <group>
+                        <field name="is_instructor"/>
+                        <field name="is_student"/>
+                    </group>
+                    <group string="Lớp đang dạy" invisible="not is_instructor">
+                        <field name="session_teaching_ids" nolabel="1">
+                            <tree>
+                                <field name="code"/>
+                                <field name="name"/>
+                                <field name="start_date"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group string="Lớp đang học" invisible="not is_student">
+                        <field name="session_attending_ids" nolabel="1" widget="many2many_tags"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
