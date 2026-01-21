@@ -82,7 +82,7 @@
                 <field name="code"/>
                 <field name="name"/>
                 <field name="instructor_id"/>
-                <field name="attendee_ids"/>
+                <field name="attendee_count"/>
                 <field name="state"/>
                 <templates>
                     <t t-name="kanban-box">
@@ -91,7 +91,7 @@
                                 <div><strong><field name="code"/></strong></div>
                                 <div><field name="name"/></div>
                                 <div>GV: <field name="instructor_id"/></div>
-                                <div>HV: <field name="attendee_ids" widget="many2many_tags"/></div>
+                                <div>Số học viên: <field name="attendee_count"/></div>
                                 <div>
                                     <span class="badge badge-pill">
                                         <field name="state"/>

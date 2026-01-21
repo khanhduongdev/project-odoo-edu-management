@@ -36,6 +36,7 @@ class EduSession(models.Model):
         currency_field='currency_id')
     currency_id = fields.Many2one('res.currency', 
         default=lambda self: self.env.company.currency_id)
+    attendee_count = fields.Integer('Số học viên', compute='_compute_attendee_count', store=True)
     
     # Workflow
     state = fields.Selection([
@@ -46,6 +47,11 @@ class EduSession(models.Model):
     ], default='draft', required=True, tracking=True)
 
     # ... (Keep existing compute methods) ...
+    
+    @api.depends('attendee_ids')
+    def _compute_attendee_count(self):
+        for rec in self:
+            rec.attendee_count = len(rec.attendee_ids)
 
     # Chức năng: Comprehensive Validations
     @api.constrains('name', 'course_id', 'start_date', 'seats')
