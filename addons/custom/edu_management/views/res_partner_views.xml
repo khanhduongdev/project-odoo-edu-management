@@ -67,8 +67,11 @@
                 <page string="Education" name="education">
                     <group>
                         <group>
-                            <field name="is_instructor"/>
-                            <field name="is_student"/>
+                        <group>
+                            <field name="edu_role" widget="radio" options="{'horizontal': true}"/>
+                            <field name="is_instructor" invisible="1"/>
+                            <field name="is_student" invisible="1"/>
+                        </group>
                         </group>
                     </group>
 

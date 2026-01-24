@@ -7,3 +7,7 @@ access_classroom_user,edu.classroom.user,model_edu_classroom,group_edu_user,1,0,
 access_classroom_manager,edu.classroom.manager,model_edu_classroom,group_edu_manager,1,1,1,1
 access_session_user,edu.session.user,model_edu_session,group_edu_user,1,1,1,0
 access_session_manager,edu.session.manager,model_edu_session,group_edu_manager,1,1,1,1
+access_course_student,edu.course.student,model_edu_course,group_edu_student,1,0,0,0
+access_subject_student,edu.subject.student,model_edu_subject,group_edu_student,1,0,0,0
+access_classroom_student,edu.classroom.student,model_edu_classroom,group_edu_student,1,0,0,0
+access_session_student,edu.session.student,model_edu_session,group_edu_student,1,0,0,0

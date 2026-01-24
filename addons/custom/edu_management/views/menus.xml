@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Root Menu -->
-    <menuitem id="menu_edu_root" name="Đào tạo" sequence="10"/>
+    <menuitem id="menu_edu_root" name="Đào tạo" sequence="10"
+              groups="group_edu_manager,group_edu_user,group_edu_student"/>
     
     <!-- Master Data -->
     <menuitem id="menu_edu_master" name="Danh mục" parent="menu_edu_root" sequence="10"/>

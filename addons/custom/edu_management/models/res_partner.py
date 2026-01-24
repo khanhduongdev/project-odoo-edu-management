@@ -6,8 +6,16 @@ class ResPartner(models.Model):
     
     # Default values as requested
     company_type = fields.Selection(default='person')
-    is_instructor = fields.Boolean('Là giảng viên', default=False)
-    is_student = fields.Boolean('Là học viên', default=True)
+    
+    # New Role Selection
+    edu_role = fields.Selection([
+        ('student', 'Học viên'),
+        ('instructor', 'Giảng viên')
+    ], string='Vai trò', default='student', required=True)
+    
+    # Computed booleans for backward compatibility and search
+    is_instructor = fields.Boolean('Là giảng viên', compute='_compute_roles', store=True)
+    is_student = fields.Boolean('Là học viên', compute='_compute_roles', store=True)
     
     session_teaching_ids = fields.One2many('edu.session', 'instructor_id', 
         string='Lớp đang dạy')
@@ -18,13 +26,11 @@ class ResPartner(models.Model):
     # Smart button
     teaching_count = fields.Integer(compute='_compute_teaching_count')
 
-    @api.constrains('is_instructor', 'is_student')
-    def _check_role(self):
+    @api.depends('edu_role')
+    def _compute_roles(self):
         for rec in self:
-            if rec.is_instructor and rec.is_student:
-                raise ValidationError('Vai trò không hợp lệ (Không thể vừa là giảng viên vừa là học viên)!')
-            if not rec.is_instructor and not rec.is_student:
-                raise ValidationError('Cần lựa chọn vai trò!')
+            rec.is_student = (rec.edu_role == 'student')
+            rec.is_instructor = (rec.edu_role == 'instructor')
 
     @api.constrains('name', 'phone', 'email')
     def _check_required_fields(self):
